@@ -3,6 +3,8 @@
  */
 package jdkstudy.thread.threadpool.mypool;
 
+import sun.tools.jconsole.Worker;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedList;
@@ -17,7 +19,7 @@ public class ThreadPoolDemo implements ThreadPool {
     private int maxWorkerNum;
     private int minWorkerNum = 1;
     private final LinkedList<Job> jobList = new LinkedList<>();
-    private final List<Worker> workerList = Collections.synchronizedList(new ArrayList<>());
+    private final List<Worker> workerList = Collections.synchronizedList(new ArrayList<Worker>());
 
     private AtomicInteger threadNum = new AtomicInteger();
     private int workerNum;

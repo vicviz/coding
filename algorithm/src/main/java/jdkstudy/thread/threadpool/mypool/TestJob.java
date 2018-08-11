@@ -13,7 +13,7 @@ public class TestJob implements Job {
     public void excute() {
         System.out.println(name + " real run in:" + Thread.currentThread().getName());
         try {
-            Thread.currentThread().sleep(100);
+            Thread.sleep(100);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
