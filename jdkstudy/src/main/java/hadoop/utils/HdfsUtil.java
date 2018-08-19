@@ -173,4 +173,31 @@ public class HdfsUtil {
             logger.error("keyvalue info get error:", e);
         }
     }
+    public static void main(String[] args) throws IOException {
+        String url = args[0];
+        Configuration conf = new Configuration();
+        conf.set("fs.hdfs.impl", org.apache.hadoop.hdfs.DistributedFileSystem.class.getName());
+
+        FileSystem fs = FileSystem.get(URI.create(url), conf);
+        org.apache.hadoop.fs.Path path = new org.apache.hadoop.fs.Path(url);
+
+        Text key = new Text();
+        BytesWritable value = new BytesWritable(new byte[]{1});
+
+        SequenceFile.Writer writer = null;
+
+        try {
+            writer = SequenceFile.createWriter(fs, conf, path, key.getClass(), value.getClass());
+            for (long i = 10000000000L; i < 99999999999L; i++) {
+                if (i % 100000 == 0) {
+                    System.out.println(i);
+                }
+                key.set(String.valueOf(i));
+                writer.append(key, value);
+            }
+            writer.hflush();
+        } finally {
+            IOUtils.closeStream(writer);
+        }
+    }
 }
