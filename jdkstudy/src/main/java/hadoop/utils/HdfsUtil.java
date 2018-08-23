@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.net.URI;
+import java.util.Scanner;
 
 public class HdfsUtil {
     private static Logger logger = LoggerFactory.getLogger(HdfsUtil.class);
@@ -92,8 +93,9 @@ public class HdfsUtil {
             os.write(buff, 0, buff.length);
             System.out.println("Create: " + file);
         } finally {
-            if (os != null)
+            if (os != null) {
                 os.close();
+            }
         }
         fs.close();
     }
@@ -173,8 +175,50 @@ public class HdfsUtil {
             logger.error("keyvalue info get error:", e);
         }
     }
-    public static void main(String[] args) throws IOException {
-        String url = args[0];
+
+    /**
+     * 一个读hdfs文件的例子
+     * @param pathStr
+     * @throws IOException
+     */
+    public static void readHdfsDemo(String pathStr) throws IOException {
+        String url = pathStr;
+        Configuration conf = new Configuration();
+        conf.set("fs.hdfs.impl", org.apache.hadoop.hdfs.DistributedFileSystem.class.getName());
+
+        FileSystem fs = FileSystem.get(URI.create(url), conf);
+        org.apache.hadoop.fs.Path path = new org.apache.hadoop.fs.Path(url);
+
+        SequenceFile.Reader reader = new SequenceFile.Reader(fs, path, conf);
+        Writable key = (Writable) ReflectionUtils. newInstance(
+                reader.getKeyClass(), conf);
+        Writable value = (Writable) ReflectionUtils.newInstance(
+                reader.getValueClass(), conf);
+        System.out.println("keyType:" + key.getClass().getSimpleName());
+        System.out.println("valueType:" + value.getClass().getSimpleName());
+        Scanner scanner = new Scanner(System.in);
+        try {
+            long position = reader.getPosition();
+            while (reader.next(key, value)) {
+                System.out.print(String.format("position:%s, key:%s, value:", position, key.toString()));
+                byte[] bytes = ((BytesWritable) value).copyBytes();
+                for (int i = 0; i < bytes.length;i++) {
+                    System.out.print(String.format("%d ", bytes[i]));
+                }
+                System.out.println(", value.size:" + bytes.length);
+                String s = scanner.next();
+                if (s.equals("0")) {
+                    break;
+                }
+                System.out.println("write key.size:" + (2 + key.toString().length()) + "M");
+                System.out.println("write value.size:" + bytes.length + "M");
+            }
+        } finally {
+            IOUtils.closeStream(reader);
+        }
+    }
+
+    public static void writeDemo(String url) throws IOException {
         Configuration conf = new Configuration();
         conf.set("fs.hdfs.impl", org.apache.hadoop.hdfs.DistributedFileSystem.class.getName());
 
@@ -188,13 +232,8 @@ public class HdfsUtil {
 
         try {
             writer = SequenceFile.createWriter(fs, conf, path, key.getClass(), value.getClass());
-            for (long i = 10000000000L; i < 99999999999L; i++) {
-                if (i % 100000 == 0) {
-                    System.out.println(i);
-                }
-                key.set(String.valueOf(i));
-                writer.append(key, value);
-            }
+            key.set(String.valueOf(0));
+            writer.append(key, value);
             writer.hflush();
         } finally {
             IOUtils.closeStream(writer);
