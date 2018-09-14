@@ -3,8 +3,6 @@
  */
 package jdkstudy.thread.threadpool.mypool;
 
-import sun.tools.jconsole.Worker;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedList;
