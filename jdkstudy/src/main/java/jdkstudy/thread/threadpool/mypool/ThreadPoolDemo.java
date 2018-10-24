@@ -16,14 +16,13 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class ThreadPoolDemo implements ThreadPool {
     private int maxWorkerNum;
     private int minWorkerNum = 1;
-    private final LinkedList<Job> jobList = new LinkedList<>();
+    private final LinkedList<Job> jobList = new LinkedList<Job>();
     private final List<Worker> workerList = Collections.synchronizedList(new ArrayList<Worker>());
 
     private AtomicInteger threadNum = new AtomicInteger();
     private int workerNum;
     private  class Worker implements Runnable {
         private volatile boolean isRunning = true;
-        @Override
         public void run() {
             while (isRunning) {
                 Job job = null;
@@ -67,7 +66,6 @@ public class ThreadPoolDemo implements ThreadPool {
         }
     }
 
-    @Override
     public void addWorker(int num) {
         synchronized (jobList) {
             if ( (num + workerNum) > maxWorkerNum) {
@@ -78,7 +76,6 @@ public class ThreadPoolDemo implements ThreadPool {
         }
     }
 
-    @Override
     public void removeWorker(int num) {
         if (num > workerList.size()) {
             throw new IllegalArgumentException("remove too many worker beyond now worker num");
@@ -94,7 +91,6 @@ public class ThreadPoolDemo implements ThreadPool {
         }
     }
 
-    @Override
     public void execute(Job job) {
         if (job != null) {
             synchronized(jobList) {
@@ -104,14 +100,12 @@ public class ThreadPoolDemo implements ThreadPool {
         }
     }
 
-    @Override
     public void shutdown() {
         for (Worker worker: workerList) {
             worker.shutdown();
         }
     }
 
-    @Override
     public int getJobsNum() {
         return jobList.size();
     }
