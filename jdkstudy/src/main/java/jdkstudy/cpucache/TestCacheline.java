@@ -1,9 +1,3 @@
-/**
- *
- * TestCacheline.java, 2018—08-13.
- *
- * Copyright 2018 jd, Inc. All rights reserved.
- */
 package jdkstudy.cpucache;
 
 /**
